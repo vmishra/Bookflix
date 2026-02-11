@@ -1,0 +1,44 @@
+[project]
+name = "bookflix-backend"
+version = "0.1.0"
+description = "Bookflix - Netflix for Books backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "psycopg2-binary>=2.9.9",
+    "alembic>=1.14.0",
+    "pgvector>=0.3.6",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "celery[redis]>=5.4.0",
+    "redis>=5.2.0",
+    "httpx>=0.28.0",
+    "openai>=1.57.0",
+    "sentence-transformers>=3.3.0",
+    "PyMuPDF>=1.25.0",
+    "pdfplumber>=0.11.0",
+    "ebooklib>=0.18",
+    "beautifulsoup4>=4.12.0",
+    "Pillow>=11.0.0",
+    "python-multipart>=0.0.17",
+    "websockets>=14.0",
+    "scikit-learn>=1.6.0",
+    "numpy>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.28.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[tool.setuptools.packages.find]
+include = ["app*", "celery_app*"]
