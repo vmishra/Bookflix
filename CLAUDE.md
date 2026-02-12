@@ -77,13 +77,19 @@ bookflix/
 - All services with business logic
 
 ### What is NOT done yet:
-- `npm install` has never been run (no node_modules)
-- No Alembic migration generated yet
-- No `.env` file created (only `.env.example`)
-- Nothing has been tested - no `docker compose up` yet
-- Frontend may have import errors or missing dependencies
-- Backend may have import errors or circular dependencies
+- No Alembic migration generated yet (needs Docker for DB)
+- Nothing has been tested end-to-end - no `docker compose up` yet
 - No actual data has been processed
+- Docker is not installed on this machine yet
+
+### What was verified (without Docker):
+- `npm install` completed successfully (450 packages)
+- Frontend builds cleanly (`tsc && vite build` - zero errors)
+- All backend Python files parse without syntax errors
+- All backend imports are consistent (no circular imports)
+- Route ordering bug in insights.py was fixed (static routes before dynamic)
+- Alembic migration template updated to include pgvector Vector import
+- `.env` created from `.env.example` with dev defaults
 
 ## How to Get Running
 
@@ -96,7 +102,7 @@ cp .env.example .env
 docker compose up --build
 
 # 3. Generate and run migrations (after backend is up)
-make migrate-create msg="initial"
+make makemigrations m="initial"
 make migrate
 
 # 4. Access the app

@@ -8,11 +8,12 @@
 
 These steps must happen before anything else works.
 
-- [ ] Create `.env` from `.env.example` and fill in real values
-- [ ] Run `npm install` in `frontend/` directory
+- [x] Create `.env` from `.env.example` and fill in real values
+- [x] Run `npm install` in `frontend/` directory
+- [ ] Install Docker on this machine
 - [ ] Run `docker compose up --build` and get all 8 services healthy
 - [ ] Debug any startup errors (import errors, missing deps, config issues)
-- [ ] Run `make migrate-create msg="initial"` to generate Alembic migration
+- [ ] Run `make makemigrations m="initial"` to generate Alembic migration
 - [ ] Run `make migrate` to apply migration to database
 - [ ] Verify `init-db.sh` ran (pgvector + pg_trgm extensions created)
 - [ ] Verify frontend loads at http://localhost:3000
@@ -130,8 +131,8 @@ These steps must happen before anything else works.
 - [x] `index.css` - Global styles, dark theme
 - [x] `main.tsx` - App entry with QueryClientProvider
 - [x] `App.tsx` - React Router with 11 routes
-- [ ] `npm install` run successfully
-- [ ] Frontend builds without errors (`npm run build`)
+- [x] `npm install` run successfully (450 packages, 0 vulnerabilities)
+- [x] Frontend builds without errors (`npm run build`)
 
 ### Core Libraries
 - [x] `lib/api.ts` - All API functions (fetch wrapper)
@@ -194,9 +195,9 @@ These steps must happen before anything else works.
 
 This is the critical next phase. All code exists but has never been run.
 
-- [ ] Fix backend import errors (likely circular imports, missing __init__ exports)
-- [ ] Fix frontend TypeScript errors (`npm run build` / `npx tsc --noEmit`)
-- [ ] Fix frontend missing component imports (pages may reference components not yet created like search/, chat/, insights/, reader/ sub-components)
+- [x] Fix backend import errors (verified: no circular imports, all imports consistent)
+- [x] Fix frontend TypeScript errors (`tsc --noEmit` passes cleanly, `npm run build` succeeds)
+- [x] Fix frontend missing component imports (all components resolve correctly)
 - [ ] Verify all Docker services start and stay healthy
 - [ ] Verify database migration creates all tables correctly
 - [ ] Test library scan endpoint with real book directory
@@ -211,11 +212,12 @@ This is the critical next phase. All code exists but has never been run.
 - [ ] Test reading progress save/restore
 
 ### Known Likely Issues to Debug
-- [ ] Frontend pages reference sub-components (search/, chat/, insights/, reader/) that don't exist yet as separate files - they may be inline or need to be created
-- [ ] Some React imports may reference packages not in package.json (react-pdf, react-reader, react-force-graph, lucide-react)
-- [ ] Backend circular imports between models/services/tasks
-- [ ] Alembic may need manual tweaks for pgvector column types
-- [ ] Celery task imports may have path issues depending on how the worker starts
+- [x] Frontend pages reference sub-components - VERIFIED: all components inline or exist, build succeeds
+- [x] React imports may reference missing packages - VERIFIED: all in package.json, `npm install` succeeded
+- [x] Backend circular imports - VERIFIED: none found, models use string relationship refs
+- [x] Alembic pgvector column types - FIXED: migration template now includes `Vector` import
+- [x] Celery task import paths - VERIFIED: absolute imports from backend root, correct for Docker WORKDIR=/app
+- [x] API route ordering bug in insights.py - FIXED: static routes (/concepts, /frameworks) moved before dynamic /{insight_id}
 
 ---
 

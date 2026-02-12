@@ -8,40 +8,7 @@ from app.schemas.insight import InsightOut, InsightConnectionOut, BookInsightsRe
 router = APIRouter()
 
 
-@router.get("/book/{book_id}", response_model=BookInsightsResponse)
-async def get_book_insights(book_id: int, db: AsyncSession = Depends(get_async_session)):
-    all_insights = await insight_service.get_book_insights(db, book_id)
-
-    concepts = [InsightOut.model_validate(i) for i in all_insights if i.insight_type == "key_concept"]
-    frameworks = [InsightOut.model_validate(i) for i in all_insights if i.insight_type == "framework"]
-    takeaways = [InsightOut.model_validate(i) for i in all_insights if i.insight_type == "takeaway"]
-
-    return BookInsightsResponse(
-        book_id=book_id,
-        concepts=concepts,
-        frameworks=frameworks,
-        takeaways=takeaways,
-    )
-
-
-@router.get("/{insight_id}", response_model=InsightOut)
-async def get_insight(insight_id: int, db: AsyncSession = Depends(get_async_session)):
-    from app.models.insight import BookInsight
-    insight = await db.get(BookInsight, insight_id)
-    if not insight:
-        raise HTTPException(status_code=404, detail="Insight not found")
-    return InsightOut.model_validate(insight)
-
-
-@router.get("/{insight_id}/connections", response_model=list[InsightConnectionOut])
-async def get_insight_connections(
-    insight_id: int,
-    limit: int = 5,
-    db: AsyncSession = Depends(get_async_session),
-):
-    connections = await insight_service.find_insight_connections(db, insight_id, limit=limit)
-    return [InsightConnectionOut(**c) for c in connections]
-
+# Static routes MUST come before dynamic /{insight_id} to avoid path conflicts
 
 @router.get("/concepts", response_model=list[InsightOut])
 async def get_all_concepts(
@@ -75,8 +42,43 @@ async def get_all_frameworks(
     return [InsightOut.model_validate(i) for i in result.scalars().all()]
 
 
+@router.get("/book/{book_id}", response_model=BookInsightsResponse)
+async def get_book_insights(book_id: int, db: AsyncSession = Depends(get_async_session)):
+    all_insights = await insight_service.get_book_insights(db, book_id)
+
+    concepts = [InsightOut.model_validate(i) for i in all_insights if i.insight_type == "key_concept"]
+    frameworks = [InsightOut.model_validate(i) for i in all_insights if i.insight_type == "framework"]
+    takeaways = [InsightOut.model_validate(i) for i in all_insights if i.insight_type == "takeaway"]
+
+    return BookInsightsResponse(
+        book_id=book_id,
+        concepts=concepts,
+        frameworks=frameworks,
+        takeaways=takeaways,
+    )
+
+
 @router.post("/book/{book_id}/regenerate")
 async def regenerate_insights(book_id: int):
     from celery_app.tasks.insight_tasks import generate_book_insights
     task = generate_book_insights.delay(book_id, pass_level=1)
     return {"task_id": task.id, "message": "Insight regeneration started"}
+
+
+@router.get("/{insight_id}", response_model=InsightOut)
+async def get_insight(insight_id: int, db: AsyncSession = Depends(get_async_session)):
+    from app.models.insight import BookInsight
+    insight = await db.get(BookInsight, insight_id)
+    if not insight:
+        raise HTTPException(status_code=404, detail="Insight not found")
+    return InsightOut.model_validate(insight)
+
+
+@router.get("/{insight_id}/connections", response_model=list[InsightConnectionOut])
+async def get_insight_connections(
+    insight_id: int,
+    limit: int = 5,
+    db: AsyncSession = Depends(get_async_session),
+):
+    connections = await insight_service.find_insight_connections(db, insight_id, limit=limit)
+    return [InsightConnectionOut(**c) for c in connections]
